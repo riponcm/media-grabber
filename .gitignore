@@ -18,3 +18,6 @@ __pycache__/
 *.crx
 *.pem
 dist/
+
+# Local tooling (not published)
+tools/generate_icons.py
