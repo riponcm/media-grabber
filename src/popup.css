@@ -135,3 +135,23 @@ footer {
   font-size: 11px;
   color: var(--muted);
 }
+
+.github {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.github:hover {
+  color: var(--text);
+  border-color: #4a4a55;
+  background: #303038;
+}
+.github .gh-star { color: #e3b341; }
+
