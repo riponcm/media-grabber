@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-4f46e5.svg)](LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-7c3aed.svg)](manifest.json)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-22c55e.svg)](CONTRIBUTING.md)
-[![Stars](https://img.shields.io/github/stars/your-username/media-grabber?style=social)](https://github.com/your-username/media-grabber/stargazers)
+[![Stars](https://img.shields.io/github/stars/riponcm/media-grabber?style=social)](https://github.com/riponcm/media-grabber/stargazers)
 
 </div>
 
@@ -122,6 +122,6 @@ Released under the [MIT License](LICENSE).
 
 If Media Grabber is useful to you, consider starring the repository.
 
-[![Star this repo](https://img.shields.io/github/stars/your-username/media-grabber?style=for-the-badge&logo=github&color=4f46e5)](https://github.com/your-username/media-grabber)
+[![Star this repo](https://img.shields.io/github/stars/riponcm/media-grabber?style=for-the-badge&logo=github&color=4f46e5)](https://github.com/riponcm/media-grabber)
 
 </div>
