@@ -64,27 +64,24 @@ main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
   cursor: pointer;
 }
 
-.meterwrap { display: flex; align-items: center; gap: 12px; }
-.meter {
-  flex: 1;
-  height: 10px;
-  background: #2c2c33;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
+.vizwrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.meter-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #4f46e5, #7c3aed);
-  transition: width 0.06s linear;
+.wave {
+  width: 100%;
+  height: 64px;
+  background: #18181c;
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 .timer {
   font-family: Consolas, monospace;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  min-width: 58px;
-  text-align: right;
+  text-align: center;
+  letter-spacing: 1px;
 }
 
 .controls { display: flex; gap: 10px; }
@@ -105,6 +102,12 @@ main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .btn.ghost { background: #3a3a43; }
 .btn.ghost:hover { background: #45454f; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.small {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 7px 12px;
+  font-size: 12px;
+}
 
 .status { margin: 0; color: var(--muted); font-size: 12px; min-height: 16px; }
 .status.error { color: #fca5a5; }

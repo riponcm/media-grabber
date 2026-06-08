@@ -1,13 +1,10 @@
 /**
- * Media Grabber - recorder window
+ * Media Grabber - recorder (side panel)
  *
- * A self-contained recording page (opened in its own window) that captures:
- *   - Tab audio (via tabCapture.getMediaStreamId + getUserMedia)
- *   - Microphone (getUserMedia)
- *   - Tab + Microphone mixed
- * Records to WebM (MediaRecorder) or WAV (raw PCM, encoded in-house). Tab audio
- * is routed to the speakers so it stays audible; the microphone is not, to avoid
- * an echo. Shows a live level meter and a preview before saving.
+ * Captures Tab audio, Microphone, or Tab + Mic mixed. Records to WebM
+ * (MediaRecorder) or WAV (raw PCM encoded in-house). Tab audio is monitored to
+ * the speakers; the mic is not (avoids echo). Features a live waveform,
+ * pause/resume, and preview-before-save.
  */
 
 const params = new URLSearchParams(location.search);
@@ -28,10 +25,12 @@ const els = {
   sources: document.querySelectorAll('input[name="source"]'),
   micRow: document.getElementById("micRow"),
   micDevice: document.getElementById("micDevice"),
+  grantMic: document.getElementById("grantMic"),
   format: document.getElementById("format"),
-  meterFill: document.getElementById("meterFill"),
+  wave: document.getElementById("wave"),
   timer: document.getElementById("timer"),
   start: document.getElementById("start"),
+  pause: document.getElementById("pause"),
   stop: document.getElementById("stop"),
   status: document.getElementById("status"),
   preview: document.getElementById("preview"),
@@ -40,7 +39,9 @@ const els = {
   discard: document.getElementById("discard"),
 };
 
-// Recording session state
+const waveCtx = els.wave.getContext("2d");
+
+// Session state
 let ctx = null;
 let mediaRecorder = null;
 let webmChunks = [];
@@ -48,24 +49,37 @@ let processor = null;
 let pcmLeft = [];
 let pcmRight = [];
 let wavRecording = false;
+let wavPaused = false;
 let analyser = null;
-let meterRAF = 0;
+let vizRAF = 0;
 let timerId = 0;
 let startedAt = 0;
+let pausedAccum = 0;
+let pauseStart = 0;
 let activeStreams = [];
 let resultBlob = null;
 let resultUrl = null;
 
-function selectedSource() {
-  return [...els.sources].find((r) => r.checked).value;
-}
+const selectedSource = () => [...els.sources].find((r) => r.checked).value;
 
 function setStatus(text, isError = false) {
   els.status.textContent = text;
   els.status.classList.toggle("error", isError);
 }
 
-// --- Device list ------------------------------------------------------------
+// --- Microphone permission --------------------------------------------------
+
+async function micPermissionState() {
+  try {
+    return (await navigator.permissions.query({ name: "microphone" })).state;
+  } catch {
+    return "prompt";
+  }
+}
+
+els.grantMic.addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("src/request-mic.html") });
+});
 
 async function listMics() {
   try {
@@ -85,14 +99,23 @@ async function listMics() {
       opt.textContent = m.label || `Microphone ${i + 1}`;
       els.micDevice.appendChild(opt);
     });
-  } catch (e) {
+  } catch {
     /* ignore */
   }
 }
 
-function updateMicRow() {
+async function updateMicRow() {
   const needsMic = selectedSource() !== "tab";
   els.micRow.hidden = !needsMic;
+  if (!needsMic) {
+    els.grantMic.hidden = true;
+    setStatus("");
+    return;
+  }
+  const state = await micPermissionState();
+  els.grantMic.hidden = state === "granted";
+  setStatus(state === "granted" ? "" : 'Microphone needs permission — click "Grant microphone access".');
+  listMics();
 }
 
 els.sources.forEach((r) => r.addEventListener("change", updateMicRow));
@@ -119,18 +142,13 @@ async function getTabStream(tabId) {
   });
 }
 
-async function getMicStream(deviceId) {
+function getMicStream(deviceId) {
   return navigator.mediaDevices.getUserMedia({
     audio: deviceId ? { deviceId: { exact: deviceId } } : true,
     video: false,
   });
 }
 
-/**
- * Build the audio graph for the chosen source.
- * Returns { mixNode } where mixNode carries the recording mix. Tab audio is
- * connected separately to the speakers for monitoring.
- */
 async function buildGraph(source) {
   ctx = new AudioContext();
   await ctx.resume();
@@ -140,22 +158,20 @@ async function buildGraph(source) {
     const tabStream = await getTabStream(targetTabId);
     activeStreams.push(tabStream);
     const tabSrc = ctx.createMediaStreamSource(tabStream);
-    tabSrc.connect(mixNode); // into the recording mix
+    tabSrc.connect(mixNode);
     tabSrc.connect(ctx.destination); // monitor: keep tab audio audible
   }
 
   if (source === "mic" || source === "tabmic") {
     const micStream = await getMicStream(els.micDevice.value);
     activeStreams.push(micStream);
-    ctx.createMediaStreamSource(micStream).connect(mixNode); // mic into mix only (no monitor -> no echo)
-    listMics(); // labels are available now that permission was granted
+    ctx.createMediaStreamSource(micStream).connect(mixNode); // no monitor -> no echo
+    listMics();
   }
 
-  // Level meter taps the mix.
   analyser = ctx.createAnalyser();
-  analyser.fftSize = 512;
+  analyser.fftSize = 2048;
   mixNode.connect(analyser);
-
   return mixNode;
 }
 
@@ -167,25 +183,37 @@ async function start() {
   const source = selectedSource();
   const format = els.format.value;
 
+  // Mic permission gate.
+  if (source !== "tab" && (await micPermissionState()) !== "granted") {
+    els.grantMic.hidden = false;
+    setStatus('Microphone is blocked. Click "Grant microphone access", allow it, then try again.', true);
+    return;
+  }
+
   try {
     const mixNode = await buildGraph(source);
-
-    if (format === "wav") {
-      startWav(mixNode);
-    } else {
-      startWebm(mixNode);
-    }
+    if (format === "wav") startWav(mixNode);
+    else startWebm(mixNode);
 
     startedAt = Date.now();
+    pausedAccum = 0;
+    pauseStart = 0;
     startTimer();
-    startMeter();
+    startViz();
     els.start.disabled = true;
+    els.pause.disabled = false;
+    els.pause.textContent = "Pause";
     els.stop.disabled = false;
     lockInputs(true);
     setStatus(`Recording ${labelFor(source)}...`);
   } catch (e) {
     cleanup();
-    setStatus(`Could not start: ${e.message}`, true);
+    const hint =
+      e.name === "NotAllowedError"
+        ? ' Click "Grant microphone access" and allow it.'
+        : "";
+    setStatus(`Could not start: ${e.message}.${hint}`, true);
+    if (e.name === "NotAllowedError") els.grantMic.hidden = false;
   }
 }
 
@@ -206,11 +234,12 @@ function startWav(mixNode) {
   pcmLeft = [];
   pcmRight = [];
   wavRecording = true;
+  wavPaused = false;
   const zeroGain = ctx.createGain();
-  zeroGain.gain.value = 0; // drives the processor without adding mic audio to the speakers
+  zeroGain.gain.value = 0;
   processor = ctx.createScriptProcessor(4096, 2, 2);
   processor.onaudioprocess = (e) => {
-    if (!wavRecording) return;
+    if (!wavRecording || wavPaused) return;
     const input = e.inputBuffer;
     const l = input.getChannelData(0);
     const r = input.numberOfChannels > 1 ? input.getChannelData(1) : l;
@@ -222,12 +251,32 @@ function startWav(mixNode) {
   zeroGain.connect(ctx.destination);
 }
 
+function togglePause() {
+  if (pauseStart) {
+    // resume
+    pausedAccum += Date.now() - pauseStart;
+    pauseStart = 0;
+    wavPaused = false;
+    if (mediaRecorder && mediaRecorder.state === "paused") mediaRecorder.resume();
+    els.pause.textContent = "Pause";
+    setStatus(`Recording ${labelFor(selectedSource())}...`);
+  } else {
+    // pause
+    pauseStart = Date.now();
+    wavPaused = true;
+    if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.pause();
+    els.pause.textContent = "Resume";
+    setStatus("Paused");
+  }
+}
+
 function stop() {
   els.stop.disabled = true;
+  els.pause.disabled = true;
   stopTimer();
-  stopMeter();
+  stopViz();
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop(); // -> finalize via onstop
+    mediaRecorder.stop();
   } else if (wavRecording) {
     wavRecording = false;
     finalize(encodeWav(pcmLeft, pcmRight, ctx.sampleRate));
@@ -242,6 +291,7 @@ function finalize(blob) {
   setStatus(`Done — ${(blob.size / 1024 / 1024).toFixed(2)} MB. Preview, then Save.`);
   cleanup();
   els.start.disabled = false;
+  els.pause.textContent = "Pause";
   lockInputs(false);
 }
 
@@ -268,34 +318,57 @@ function resetResult() {
   resultBlob = null;
 }
 
-// --- Meter & timer ----------------------------------------------------------
+// --- Waveform & timer -------------------------------------------------------
 
-function startMeter() {
-  const data = new Uint8Array(analyser.frequencyBinCount);
+function sizeCanvas() {
+  els.wave.width = els.wave.clientWidth || 380;
+}
+
+function startViz() {
+  sizeCanvas();
+  const data = new Uint8Array(analyser.fftSize);
+  const grad = waveCtx.createLinearGradient(0, 0, els.wave.width, 0);
+  grad.addColorStop(0, "#4f46e5");
+  grad.addColorStop(1, "#a855f7");
+
   const draw = () => {
+    const w = els.wave.width;
+    const h = els.wave.height;
     analyser.getByteTimeDomainData(data);
-    let peak = 0;
-    for (const v of data) peak = Math.max(peak, Math.abs(v - 128));
-    els.meterFill.style.width = `${Math.min(100, (peak / 128) * 140)}%`;
-    meterRAF = requestAnimationFrame(draw);
+    waveCtx.clearRect(0, 0, w, h);
+    waveCtx.lineWidth = 2;
+    waveCtx.strokeStyle = grad;
+    waveCtx.beginPath();
+    const slice = w / data.length;
+    let x = 0;
+    for (let i = 0; i < data.length; i++) {
+      const y = (data[i] / 128) * (h / 2);
+      i === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
+      x += slice;
+    }
+    waveCtx.stroke();
+    vizRAF = requestAnimationFrame(draw);
   };
   draw();
 }
-function stopMeter() {
-  cancelAnimationFrame(meterRAF);
-  els.meterFill.style.width = "0%";
+
+function stopViz() {
+  cancelAnimationFrame(vizRAF);
+  waveCtx.clearRect(0, 0, els.wave.width, els.wave.height);
 }
 
 function startTimer() {
   const tick = () => {
-    const s = Math.floor((Date.now() - startedAt) / 1000);
+    const now = pauseStart || Date.now();
+    const s = Math.floor((now - startedAt - pausedAccum) / 1000);
     const mm = String(Math.floor(s / 60)).padStart(2, "0");
     const ss = String(s % 60).padStart(2, "0");
     els.timer.textContent = `${mm}:${ss}`;
   };
   tick();
-  timerId = setInterval(tick, 500);
+  timerId = setInterval(tick, 250);
 }
+
 function stopTimer() {
   clearInterval(timerId);
 }
@@ -367,7 +440,11 @@ function encodeWav(leftChunks, rightChunks, sampleRate) {
 }
 
 els.start.addEventListener("click", start);
+els.pause.addEventListener("click", togglePause);
 els.stop.addEventListener("click", stop);
+window.addEventListener("resize", () => {
+  if (!vizRAF) sizeCanvas();
+});
 
 updateMicRow();
-listMics();
+sizeCanvas();

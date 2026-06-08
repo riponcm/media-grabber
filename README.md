@@ -33,8 +33,8 @@ command to save them.
   FFmpeg command to save them.
 - **Audio recorder.** A docked **side panel** captures **tab audio, microphone, or both
   mixed** — ideal for streams that can't be saved directly (in-memory MediaSource / blob).
-  Live level meter, preview before saving, and **WebM** (Opus) or **WAV** (lossless) output —
-  both native, no dependencies.
+  Live **waveform**, **pause/resume**, preview before saving, and **WebM** (Opus) or **WAV**
+  (lossless) output — both native, no dependencies.
 - **Per-tab badge.** Shows how many media items were found on the current tab.
 - **Private by design.** No accounts, no tracking, no external servers. Everything runs locally.
 

@@ -34,6 +34,7 @@
       <div id="micRow" class="row" hidden>
         <label class="lbl">Microphone</label>
         <select id="micDevice" class="select"></select>
+        <button id="grantMic" class="btn ghost small" hidden>Grant microphone access</button>
       </div>
 
       <div class="row">
@@ -45,13 +46,14 @@
       </div>
     </section>
 
-    <section class="meterwrap">
-      <div class="meter"><div id="meterFill" class="meter-fill"></div></div>
+    <section class="vizwrap">
+      <canvas id="wave" class="wave" height="64"></canvas>
       <div id="timer" class="timer">00:00</div>
     </section>
 
     <section class="controls">
-      <button id="start" class="btn primary">Start recording</button>
+      <button id="start" class="btn primary">Start</button>
+      <button id="pause" class="btn ghost" disabled>Pause</button>
       <button id="stop" class="btn danger" disabled>Stop</button>
     </section>
 
