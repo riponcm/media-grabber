@@ -44,15 +44,22 @@ async function startRecording(streamId, format) {
     pcmRight = [];
     processor = audioContext.createScriptProcessor(4096, 2, 2);
     processor.onaudioprocess = (e) => {
-      if (!recording) return;
       const input = e.inputBuffer;
+      const output = e.outputBuffer;
       const l = input.getChannelData(0);
       const r = input.numberOfChannels > 1 ? input.getChannelData(1) : l;
-      pcmLeft.push(new Float32Array(l));
-      pcmRight.push(new Float32Array(r));
+
+      if (recording) {
+        pcmLeft.push(new Float32Array(l));
+        pcmRight.push(new Float32Array(r));
+      }
+
+      // Pass the audio through to the output so the user keeps hearing it.
+      output.getChannelData(0).set(l);
+      if (output.numberOfChannels > 1) output.getChannelData(1).set(r);
     };
     source.connect(processor);
-    processor.connect(audioContext.destination); // drives the processor and keeps audio audible
+    processor.connect(audioContext.destination); // drives the processor and plays the passthrough
   } else {
     mode = "webm";
     source.connect(audioContext.destination); // keep audio audible
