@@ -1,0 +1,5 @@
+# Normalize line endings: text files use LF in the repository.
+* text=auto eol=lf
+
+# Treat binary assets correctly.
+*.png binary
