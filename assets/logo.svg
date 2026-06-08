@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" width="640" height="200" role="img" aria-label="Media Grabber">
+  <defs>
+    <linearGradient id="iconGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="scanGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="iconClip">
+      <rect x="40" y="40" width="120" height="120" rx="26"/>
+    </clipPath>
+    <style>
+      .arrow { animation: bob 1.9s ease-in-out infinite; }
+      @keyframes bob {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(7px); }
+      }
+      .scan { animation: sweep 2.6s ease-in-out infinite; }
+      @keyframes sweep {
+        0%   { transform: translateY(-20px); opacity: 0; }
+        15%  { opacity: 1; }
+        85%  { opacity: 1; }
+        100% { transform: translateY(120px); opacity: 0; }
+      }
+      .halo { animation: pulse 2.6s ease-in-out infinite; transform-origin: 100px 100px; }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.0; transform: scale(0.96); }
+        50%      { opacity: 0.35; transform: scale(1.04); }
+      }
+    </style>
+  </defs>
+
+  <!-- Soft halo -->
+  <rect class="halo" x="36" y="36" width="128" height="128" rx="30" fill="#7c3aed"/>
+
+  <!-- Icon mark -->
+  <rect x="40" y="40" width="120" height="120" rx="26" fill="url(#iconGrad)"/>
+  <g class="arrow">
+    <rect x="93" y="70" width="14" height="31" rx="7" fill="#fff"/>
+    <path d="M79 93 L121 93 L100 121 Z" fill="#fff"/>
+  </g>
+  <rect x="72" y="130" width="56" height="10" rx="5" fill="#fff"/>
+
+  <!-- Scanning highlight, clipped to the icon -->
+  <g clip-path="url(#iconClip)">
+    <rect class="scan" x="40" y="40" width="120" height="16" fill="url(#scanGrad)"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="196" y="106" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="54" font-weight="700" fill="url(#textGrad)">Media Grabber</text>
+  <text x="198" y="142" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="400" fill="#8b8b97">Detect and download media from any page</text>
+</svg>

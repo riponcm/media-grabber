@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#g)" />
+        <path d="M24 13 v12" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+        <path d="M16 22 l8 9 l8 -9 Z" fill="#fff" />
+        <rect x="14" y="34" width="20" height="3.6" rx="1.8" fill="#fff" />
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4f46e5" />
+            <stop offset="1" stop-color="#7c3aed" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="name">Media Grabber</span>
+    </div>
+    <div class="actions">
+      <button id="refresh" title="Re-scan page" aria-label="Re-scan page">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+      </button>
+      <button id="clear" title="Clear list" aria-label="Clear list">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M6 7h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-4h6l1 2h4v2H4V5h4l1-2z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="empty" class="empty">
+    No media detected yet.<br />
+    Start playing the audio or video, then press re-scan.
+  </div>
+
+  <ul id="list"></ul>
+
+  <footer>
+    <span id="count">0 items</span>
+    <span class="hint">Streams use the FFmpeg command</span>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
