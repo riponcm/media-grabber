@@ -15,15 +15,51 @@ let activeTabId = null;
 // Formatting helpers
 // ---------------------------------------------------------------------------
 
-function fileNameFromUrl(url) {
+// Map a content-type to a file extension, used when the URL has no usable one.
+const MIME_EXT = {
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/x-matroska": "mkv",
+  "video/quicktime": "mov",
+  "video/x-msvideo": "avi",
+  "video/x-flv": "flv",
+  "video/3gpp": "3gp",
+  "video/mpeg": "mpeg",
+  "audio/mpeg": "mp3",
+  "audio/mp4": "m4a",
+  "audio/aac": "aac",
+  "audio/ogg": "ogg",
+  "audio/opus": "opus",
+  "audio/wav": "wav",
+  "audio/x-wav": "wav",
+  "audio/webm": "weba",
+  "audio/flac": "flac",
+  "application/vnd.apple.mpegurl": "m3u8",
+  "application/x-mpegurl": "m3u8",
+  "application/dash+xml": "mpd",
+};
+
+function extFromMime(type) {
+  if (!type) return "";
+  return MIME_EXT[type.split(";")[0].trim().toLowerCase()] || "";
+}
+
+/** Build a download filename, deriving the extension from the content-type if the URL lacks one. */
+function fileNameFromUrl(url, mimeType) {
+  let name = "";
   try {
     const { pathname } = new URL(url);
-    let name = decodeURIComponent(pathname.split("/").pop() || "").split("?")[0];
-    if (!name || !name.includes(".")) name = `media-${Date.now()}`;
-    return name;
+    name = decodeURIComponent(pathname.split("/").pop() || "").split("?")[0];
   } catch {
-    return `media-${Date.now()}`;
+    /* fall through */
   }
+  if (!name) name = `media-${Date.now()}`;
+  // Append an extension when the name has none (e.g. /download/abc123 served as video/mp4).
+  if (!/\.[a-z0-9]{2,5}$/i.test(name)) {
+    const ext = extFromMime(mimeType);
+    if (ext) name += `.${ext}`;
+  }
+  return name;
 }
 
 function humanSize(bytes) {
@@ -58,7 +94,7 @@ function render(items) {
 }
 
 function renderItem(item) {
-  const name = fileNameFromUrl(item.url);
+  const name = fileNameFromUrl(item.url, item.type);
   const li = document.createElement("li");
 
   const row = document.createElement("div");
