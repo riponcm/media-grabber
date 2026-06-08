@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="recorder.css" />
+  <title>Media Grabber Recorder</title>
+</head>
+<body>
+  <header>
+    <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+      <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#g)" />
+      <path d="M24 13 v12" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+      <path d="M16 22 l8 9 l8 -9 Z" fill="#fff" />
+      <rect x="14" y="34" width="20" height="3.6" rx="1.8" fill="#fff" />
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4f46e5" /><stop offset="1" stop-color="#7c3aed" />
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="title">Recorder</span>
+  </header>
+
+  <main>
+    <section class="panel">
+      <label class="lbl">Source</label>
+      <div class="sources">
+        <label class="chip"><input type="radio" name="source" value="tab" checked /> Tab audio</label>
+        <label class="chip"><input type="radio" name="source" value="mic" /> Microphone</label>
+        <label class="chip"><input type="radio" name="source" value="tabmic" /> Tab + Mic</label>
+      </div>
+
+      <div id="micRow" class="row" hidden>
+        <label class="lbl">Microphone</label>
+        <select id="micDevice" class="select"></select>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Format</label>
+        <select id="format" class="select">
+          <option value="webm">WebM (Opus, compact)</option>
+          <option value="wav">WAV (lossless)</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="meterwrap">
+      <div class="meter"><div id="meterFill" class="meter-fill"></div></div>
+      <div id="timer" class="timer">00:00</div>
+    </section>
+
+    <section class="controls">
+      <button id="start" class="btn primary">Start recording</button>
+      <button id="stop" class="btn danger" disabled>Stop</button>
+    </section>
+
+    <p id="status" class="status"></p>
+
+    <section id="preview" class="preview" hidden>
+      <audio id="player" controls></audio>
+      <div class="preview-actions">
+        <button id="save" class="btn primary">Save</button>
+        <button id="discard" class="btn ghost">Discard</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="recorder.js"></script>
+</body>
+</html>

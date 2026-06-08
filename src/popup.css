@@ -75,33 +75,6 @@ header {
   border-radius: 50%;
   background: #dc2626;
 }
-.record.recording { border-color: #dc2626; color: #fca5a5; }
-.record.recording .dot { animation: blink 1s steps(2, start) infinite; }
-@keyframes blink { 50% { opacity: 0.25; } }
-.recordright {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.format {
-  background: #303038;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 5px 7px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.format:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.rectime {
-  font-family: Consolas, monospace;
-  font-size: 12px;
-  color: #fca5a5;
-}
-
 .empty {
   padding: 30px 18px;
   text-align: center;

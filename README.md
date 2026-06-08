@@ -31,9 +31,10 @@ command to save them.
 - **One-click downloads.** Saves direct files through the browser's own download manager.
 - **Stream support.** Detects HLS and DASH playlists (`.m3u8`, `.mpd`) and produces a copy-paste
   FFmpeg command to save them.
-- **Record tab audio.** For audio that cannot be saved directly (in-memory MediaSource and blob
-  streams), capture the tab's audio output to a file. Choose **WebM** (Opus, compact) or
-  **WAV** (lossless PCM) — both native, no dependencies.
+- **Audio recorder.** A dedicated recorder window captures **tab audio, microphone, or both
+  mixed** — ideal for streams that can't be saved directly (in-memory MediaSource / blob).
+  Live level meter, preview before saving, and **WebM** (Opus) or **WAV** (lossless) output —
+  both native, no dependencies.
 - **Per-tab badge.** Shows how many media items were found on the current tab.
 - **Private by design.** No accounts, no tracking, no external servers. Everything runs locally.
 
@@ -96,8 +97,9 @@ media-grabber/
 │  ├─ popup.html           Toolbar UI
 │  ├─ popup.css            Toolbar styles
 │  ├─ popup.js             Toolbar logic
-│  ├─ offscreen.html       Offscreen document for audio recording
-│  └─ offscreen.js         MediaRecorder tab-audio capture
+│  ├─ recorder.html        Recorder window UI
+│  ├─ recorder.css         Recorder window styles
+│  └─ recorder.js          Tab/mic capture, mixing, WebM/WAV encoding
 ├─ icons/                  Toolbar icons (16, 32, 48, 128)
 └─ assets/                 Logo and brand assets
 ```

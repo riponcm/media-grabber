@@ -191,87 +191,14 @@ document.getElementById("clear").addEventListener("click", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Tab audio recording
+// Recorder window
 // ---------------------------------------------------------------------------
 
-const recordBtn = document.getElementById("record");
-const recordLabel = document.getElementById("recordLabel");
-const recordTime = document.getElementById("recordTime");
-const formatSelect = document.getElementById("format");
-let timerInterval = null;
-
-// Restore and persist the chosen recording format.
-chrome.storage.local.get("recordFormat", ({ recordFormat }) => {
-  if (recordFormat) formatSelect.value = recordFormat;
-});
-formatSelect.addEventListener("change", () => {
-  chrome.storage.local.set({ recordFormat: formatSelect.value });
-});
-
-function formatElapsed(ms) {
-  const total = Math.floor(ms / 1000);
-  const mm = String(Math.floor(total / 60)).padStart(2, "0");
-  const ss = String(total % 60).padStart(2, "0");
-  return `${mm}:${ss}`;
-}
-
-function setRecordingUI(active, startedAt) {
-  recordBtn.classList.toggle("recording", active);
-  recordLabel.textContent = active ? "Stop recording" : "Record tab audio";
-  recordTime.hidden = !active;
-  formatSelect.disabled = active;
-
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  if (active) {
-    const tick = () => (recordTime.textContent = formatElapsed(Date.now() - startedAt));
-    tick();
-    timerInterval = setInterval(tick, 500);
-  }
-}
-
-// Locally cached so the click handler can act synchronously (a user gesture is
-// required by chrome.tabCapture.getMediaStreamId and must not be lost to an
-// async round-trip before the call).
-let isRecording = false;
-
-function refreshRecordingState() {
-  chrome.runtime.sendMessage({ type: "recording-status" }, (state) => {
-    isRecording = Boolean(state?.active);
-    setRecordingUI(isRecording, state?.startedAt || 0);
-  });
-}
-
-recordBtn.addEventListener("click", () => {
-  if (isRecording) {
-    chrome.runtime.sendMessage({ type: "stop-recording" }, () => {
-      isRecording = false;
-      setRecordingUI(false);
-    });
-    return;
-  }
+document.getElementById("record").addEventListener("click", () => {
   if (activeTabId == null) return;
-
-  // Call getMediaStreamId directly in the gesture — no async hop before this.
-  chrome.tabCapture.getMediaStreamId({ targetTabId: activeTabId }, (streamId) => {
-    if (chrome.runtime.lastError || !streamId) {
-      alert(
-        `Could not start capture: ${chrome.runtime.lastError?.message || "no stream"}\n\n` +
-          "Make sure this tab is the active tab and is playing audio."
-      );
-      return;
-    }
-    chrome.runtime.sendMessage(
-      { type: "start-recording", streamId, tabId: activeTabId, format: formatSelect.value },
-      () => {
-        isRecording = true;
-        setRecordingUI(true, Date.now());
-      }
-    );
-  });
+  const url = `${chrome.runtime.getURL("src/recorder.html")}?tabId=${activeTabId}`;
+  chrome.windows.create({ url, type: "popup", width: 460, height: 660 });
+  window.close();
 });
 
 load();
-refreshRecordingState();
