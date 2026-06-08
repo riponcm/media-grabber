@@ -9,7 +9,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["webRequest", "downloads", "storage", "tabs", "scripting"],
+  "permissions": ["webRequest", "downloads", "storage", "tabs", "scripting", "tabCapture", "offscreen"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "src/background.js"

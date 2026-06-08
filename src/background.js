@@ -163,3 +163,71 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   mediaByTab.delete(tabId);
 });
+
+// ---------------------------------------------------------------------------
+// Tab audio recording (for MediaSource / blob streams that cannot be saved)
+// ---------------------------------------------------------------------------
+
+const recording = { active: false, tabId: null, startedAt: 0 };
+
+async function ensureOffscreenDocument() {
+  if (await chrome.offscreen.hasDocument()) return;
+  await chrome.offscreen.createDocument({
+    url: "src/offscreen.html",
+    reasons: ["USER_MEDIA", "AUDIO_PLAYBACK"],
+    justification: "Record the active tab's audio output to a file.",
+  });
+}
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  switch (message.type) {
+    case "start-recording": {
+      (async () => {
+        await ensureOffscreenDocument();
+        chrome.runtime.sendMessage({ type: "offscreen-start", streamId: message.streamId });
+        recording.active = true;
+        recording.tabId = message.tabId;
+        recording.startedAt = Date.now();
+        chrome.action.setBadgeText({ tabId: message.tabId, text: "REC" });
+        chrome.action.setBadgeBackgroundColor({ tabId: message.tabId, color: "#dc2626" });
+        sendResponse({ ok: true });
+      })();
+      return true;
+    }
+
+    case "stop-recording": {
+      chrome.runtime.sendMessage({ type: "offscreen-stop" });
+      sendResponse({ ok: true });
+      return true;
+    }
+
+    case "recording-status": {
+      sendResponse({ ...recording });
+      return true;
+    }
+
+    case "recording-complete": {
+      const ext = message.mimeType.includes("ogg") ? "ogg" : "webm";
+      chrome.downloads.download({
+        url: message.dataUrl,
+        filename: `media-grabber-recording-${Date.now()}.${ext}`,
+      });
+      finishRecording();
+      return false;
+    }
+
+    case "recording-error": {
+      console.error("Recording error:", message.error);
+      finishRecording();
+      return false;
+    }
+  }
+});
+
+function finishRecording() {
+  if (recording.tabId != null) updateBadge(recording.tabId);
+  recording.active = false;
+  recording.tabId = null;
+  recording.startedAt = 0;
+  chrome.offscreen.hasDocument().then((has) => has && chrome.offscreen.closeDocument());
+}

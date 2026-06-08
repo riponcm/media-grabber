@@ -190,4 +190,63 @@ document.getElementById("clear").addEventListener("click", () => {
   chrome.runtime.sendMessage({ type: "clear-media", tabId: activeTabId }, load);
 });
 
+// ---------------------------------------------------------------------------
+// Tab audio recording
+// ---------------------------------------------------------------------------
+
+const recordBtn = document.getElementById("record");
+const recordLabel = document.getElementById("recordLabel");
+const recordTime = document.getElementById("recordTime");
+let timerInterval = null;
+
+function formatElapsed(ms) {
+  const total = Math.floor(ms / 1000);
+  const mm = String(Math.floor(total / 60)).padStart(2, "0");
+  const ss = String(total % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
+
+function setRecordingUI(active, startedAt) {
+  recordBtn.classList.toggle("recording", active);
+  recordLabel.textContent = active ? "Stop recording" : "Record tab audio";
+  recordTime.hidden = !active;
+
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  if (active) {
+    const tick = () => (recordTime.textContent = formatElapsed(Date.now() - startedAt));
+    tick();
+    timerInterval = setInterval(tick, 500);
+  }
+}
+
+function refreshRecordingState() {
+  chrome.runtime.sendMessage({ type: "recording-status" }, (state) => {
+    setRecordingUI(Boolean(state?.active), state?.startedAt || 0);
+  });
+}
+
+recordBtn.addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "recording-status" }, (state) => {
+    if (state?.active) {
+      chrome.runtime.sendMessage({ type: "stop-recording" }, () => setRecordingUI(false));
+      return;
+    }
+    if (activeTabId == null) return;
+    chrome.tabCapture.getMediaStreamId({ targetTabId: activeTabId }, (streamId) => {
+      if (chrome.runtime.lastError || !streamId) {
+        alert(`Could not start capture: ${chrome.runtime.lastError?.message || "no stream"}`);
+        return;
+      }
+      chrome.runtime.sendMessage(
+        { type: "start-recording", streamId, tabId: activeTabId },
+        () => setRecordingUI(true, Date.now())
+      );
+    });
+  });
+});
+
 load();
+refreshRecordingState();

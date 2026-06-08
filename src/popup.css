@@ -48,6 +48,42 @@ header {
 }
 .actions button:hover { background: #3a3a43; }
 
+.recordbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.record {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #303038;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.record:hover { background: #3a3a43; }
+.record .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #dc2626;
+}
+.record.recording { border-color: #dc2626; color: #fca5a5; }
+.record.recording .dot { animation: blink 1s steps(2, start) infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+.rectime {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  color: #fca5a5;
+}
+
 .empty {
   padding: 30px 18px;
   text-align: center;

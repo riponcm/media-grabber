@@ -31,6 +31,8 @@ command to save them.
 - **One-click downloads.** Saves direct files through the browser's own download manager.
 - **Stream support.** Detects HLS and DASH playlists (`.m3u8`, `.mpd`) and produces a copy-paste
   FFmpeg command to save them.
+- **Record tab audio.** For audio that cannot be saved directly (in-memory MediaSource and blob
+  streams), capture the tab's audio output to a high-quality file.
 - **Per-tab badge.** Shows how many media items were found on the current tab.
 - **Private by design.** No accounts, no tracking, no external servers. Everything runs locally.
 
@@ -41,7 +43,7 @@ command to save them.
 | Direct files (`mp3`, `mp4`, `webm`, ...) | Yes | Yes, one click |
 | HTML5 `<audio>` / `<video>` with a URL | Yes | Yes |
 | HLS / DASH streams (`m3u8`, `mpd`) | Yes | Via the generated FFmpeg command |
-| MSE blob streams (for example YouTube) | Element only | Not directly |
+| MSE blob streams (for example YouTube, ElevenLabs) | Element only | Use **Record tab audio** |
 | DRM-protected media (Spotify, Netflix) | No | No, encrypted and not bypassed |
 
 ## Installation
@@ -92,7 +94,9 @@ media-grabber/
 │  ├─ content.js           DOM media scanner
 │  ├─ popup.html           Toolbar UI
 │  ├─ popup.css            Toolbar styles
-│  └─ popup.js             Toolbar logic
+│  ├─ popup.js             Toolbar logic
+│  ├─ offscreen.html       Offscreen document for audio recording
+│  └─ offscreen.js         MediaRecorder tab-audio capture
 ├─ icons/                  Toolbar icons (16, 32, 48, 128)
 └─ assets/                 Logo and brand assets
 ```
