@@ -36,7 +36,13 @@
       <span class="dot"></span>
       <span id="recordLabel">Record tab audio</span>
     </button>
-    <span id="recordTime" class="rectime" hidden>00:00</span>
+    <div class="recordright">
+      <select id="format" class="format" title="Recording format">
+        <option value="webm">WebM</option>
+        <option value="wav">WAV</option>
+      </select>
+      <span id="recordTime" class="rectime" hidden>00:00</span>
+    </div>
   </div>
 
   <div id="empty" class="empty">

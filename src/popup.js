@@ -197,7 +197,16 @@ document.getElementById("clear").addEventListener("click", () => {
 const recordBtn = document.getElementById("record");
 const recordLabel = document.getElementById("recordLabel");
 const recordTime = document.getElementById("recordTime");
+const formatSelect = document.getElementById("format");
 let timerInterval = null;
+
+// Restore and persist the chosen recording format.
+chrome.storage.local.get("recordFormat", ({ recordFormat }) => {
+  if (recordFormat) formatSelect.value = recordFormat;
+});
+formatSelect.addEventListener("change", () => {
+  chrome.storage.local.set({ recordFormat: formatSelect.value });
+});
 
 function formatElapsed(ms) {
   const total = Math.floor(ms / 1000);
@@ -210,6 +219,7 @@ function setRecordingUI(active, startedAt) {
   recordBtn.classList.toggle("recording", active);
   recordLabel.textContent = active ? "Stop recording" : "Record tab audio";
   recordTime.hidden = !active;
+  formatSelect.disabled = active;
 
   if (timerInterval) {
     clearInterval(timerInterval);
@@ -254,7 +264,7 @@ recordBtn.addEventListener("click", () => {
       return;
     }
     chrome.runtime.sendMessage(
-      { type: "start-recording", streamId, tabId: activeTabId },
+      { type: "start-recording", streamId, tabId: activeTabId, format: formatSelect.value },
       () => {
         isRecording = true;
         setRecordingUI(true, Date.now());

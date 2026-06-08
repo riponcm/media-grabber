@@ -184,7 +184,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     case "start-recording": {
       (async () => {
         await ensureOffscreenDocument();
-        chrome.runtime.sendMessage({ type: "offscreen-start", streamId: message.streamId });
+        chrome.runtime.sendMessage({
+          type: "offscreen-start",
+          streamId: message.streamId,
+          format: message.format || "webm",
+        });
         recording.active = true;
         recording.tabId = message.tabId;
         recording.startedAt = Date.now();
@@ -207,7 +211,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     }
 
     case "recording-complete": {
-      const ext = message.mimeType.includes("ogg") ? "ogg" : "webm";
+      const mt = message.mimeType || "";
+      const ext = mt.includes("wav") ? "wav" : mt.includes("ogg") ? "ogg" : "webm";
       chrome.downloads.download({
         url: message.dataUrl,
         filename: `media-grabber-recording-${Date.now()}.${ext}`,

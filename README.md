@@ -32,7 +32,8 @@ command to save them.
 - **Stream support.** Detects HLS and DASH playlists (`.m3u8`, `.mpd`) and produces a copy-paste
   FFmpeg command to save them.
 - **Record tab audio.** For audio that cannot be saved directly (in-memory MediaSource and blob
-  streams), capture the tab's audio output to a high-quality file.
+  streams), capture the tab's audio output to a file. Choose **WebM** (Opus, compact) or
+  **WAV** (lossless PCM) — both native, no dependencies.
 - **Per-tab badge.** Shows how many media items were found on the current tab.
 - **Private by design.** No accounts, no tracking, no external servers. Everything runs locally.
 
