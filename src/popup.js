@@ -196,8 +196,8 @@ document.getElementById("clear").addEventListener("click", () => {
 
 document.getElementById("record").addEventListener("click", () => {
   if (activeTabId == null) return;
-  const url = `${chrome.runtime.getURL("src/recorder.html")}?tabId=${activeTabId}`;
-  chrome.windows.create({ url, type: "popup", width: 460, height: 660 });
+  // Open the docked side panel (must be called within the user gesture).
+  chrome.sidePanel.open({ tabId: activeTabId });
   window.close();
 });
 

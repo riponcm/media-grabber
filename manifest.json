@@ -9,7 +9,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["webRequest", "downloads", "storage", "tabs", "scripting", "tabCapture"],
+  "permissions": ["webRequest", "downloads", "storage", "tabs", "scripting", "tabCapture", "sidePanel"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "src/background.js"
@@ -21,6 +21,9 @@
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"
     }
+  },
+  "side_panel": {
+    "default_path": "src/recorder.html"
   },
   "content_scripts": [
     {

@@ -17,6 +17,9 @@ body {
   background: var(--bg);
   color: var(--text);
   font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 header {
@@ -109,3 +112,26 @@ main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .preview { display: flex; flex-direction: column; gap: 10px; }
 #player { width: 100%; }
 .preview-actions { display: flex; gap: 10px; }
+
+.foot {
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 18px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+.github {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.github:hover { color: var(--text); border-color: #4a4a55; background: #2c2c33; }
+.github svg:last-child { color: #e3b341; }

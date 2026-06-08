@@ -11,7 +11,18 @@
  */
 
 const params = new URLSearchParams(location.search);
-const targetTabId = params.get("tabId") ? Number(params.get("tabId")) : null;
+let targetTabId = params.get("tabId") ? Number(params.get("tabId")) : null;
+
+// In side-panel mode no tabId is passed, so track the active tab of this window.
+// Cached synchronously so the Start click can call getMediaStreamId in-gesture.
+if (targetTabId == null) {
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
+    if (tab) targetTabId = tab.id;
+  });
+  chrome.tabs.onActivated.addListener(({ tabId }) => {
+    targetTabId = tabId;
+  });
+}
 
 const els = {
   sources: document.querySelectorAll('input[name="source"]'),
