@@ -168,7 +168,19 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 // Tab audio recording (for MediaSource / blob streams that cannot be saved)
 // ---------------------------------------------------------------------------
 
-const recording = { active: false, tabId: null, startedAt: 0 };
+// State is kept in session storage so it survives service-worker restarts
+// (MV3 terminates the worker after ~30s idle, which would otherwise lose it).
+const REC_KEY = "recordingState";
+const IDLE_STATE = { active: false, tabId: null, startedAt: 0 };
+
+async function getRecordingState() {
+  const { [REC_KEY]: state } = await chrome.storage.session.get(REC_KEY);
+  return state || IDLE_STATE;
+}
+
+async function setRecordingState(state) {
+  await chrome.storage.session.set({ [REC_KEY]: state });
+}
 
 async function ensureOffscreenDocument() {
   if (await chrome.offscreen.hasDocument()) return;
@@ -183,30 +195,35 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   switch (message.type) {
     case "start-recording": {
       (async () => {
+        const state = await getRecordingState();
+        if (state.active) {
+          sendResponse({ ok: false, reason: "already-active" });
+          return;
+        }
         await ensureOffscreenDocument();
         chrome.runtime.sendMessage({
+          target: "offscreen",
           type: "offscreen-start",
           streamId: message.streamId,
           format: message.format || "webm",
         });
-        recording.active = true;
-        recording.tabId = message.tabId;
-        recording.startedAt = Date.now();
+        const startedAt = Date.now();
+        await setRecordingState({ active: true, tabId: message.tabId, startedAt });
         chrome.action.setBadgeText({ tabId: message.tabId, text: "REC" });
         chrome.action.setBadgeBackgroundColor({ tabId: message.tabId, color: "#dc2626" });
-        sendResponse({ ok: true });
+        sendResponse({ ok: true, startedAt });
       })();
       return true;
     }
 
     case "stop-recording": {
-      chrome.runtime.sendMessage({ type: "offscreen-stop" });
+      chrome.runtime.sendMessage({ target: "offscreen", type: "offscreen-stop" });
       sendResponse({ ok: true });
       return true;
     }
 
     case "recording-status": {
-      sendResponse({ ...recording });
+      getRecordingState().then((state) => sendResponse(state));
       return true;
     }
 
@@ -229,10 +246,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 });
 
-function finishRecording() {
-  if (recording.tabId != null) updateBadge(recording.tabId);
-  recording.active = false;
-  recording.tabId = null;
-  recording.startedAt = 0;
-  chrome.offscreen.hasDocument().then((has) => has && chrome.offscreen.closeDocument());
+async function finishRecording() {
+  const state = await getRecordingState();
+  if (state.tabId != null) updateBadge(state.tabId);
+  await setRecordingState(IDLE_STATE);
+  if (await chrome.offscreen.hasDocument()) await chrome.offscreen.closeDocument();
 }

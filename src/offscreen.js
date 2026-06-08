@@ -165,6 +165,7 @@ function blobToDataUrl(blob) {
 }
 
 chrome.runtime.onMessage.addListener((message) => {
+  if (message.target !== "offscreen") return;
   if (message.type === "offscreen-start") {
     startRecording(message.streamId, message.format).catch((e) =>
       chrome.runtime.sendMessage({ type: "recording-error", error: String(e) })
