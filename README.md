@@ -2,7 +2,7 @@
 
 <img src="assets/logo.svg" alt="Media Grabber" width="560" />
 
-### Detect audio and video sources on any page, then download them in one click
+### A free, open-source video and audio downloader for Chrome — find and save media from any web page
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-4f46e5.svg)](LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-7c3aed.svg)](manifest.json)
@@ -13,9 +13,11 @@
 
 ---
 
-**Media Grabber** is a lightweight, dependency-free Chrome extension (Manifest V3) that finds the
-real audio and video sources behind a page and lets you save them, even when the site offers no
-download button. For adaptive streams, it generates a ready-to-run FFmpeg command.
+**Media Grabber** is a fast, lightweight **video and audio downloader** built as a dependency-free
+Chrome extension (Manifest V3). It automatically detects the real media source behind any web page
+so you can **download video and audio in one click** — even when the site has no download button.
+For adaptive **HLS and DASH streams** (`.m3u8`, `.mpd`), it generates a ready-to-run **FFmpeg**
+command to save them.
 
 > If this project saves you time, please consider giving it a star. It takes one click, costs you
 > nothing, and is the single best way to help other people discover it.
@@ -92,17 +94,7 @@ media-grabber/
 │  ├─ popup.css            Toolbar styles
 │  └─ popup.js             Toolbar logic
 ├─ icons/                  Toolbar icons (16, 32, 48, 128)
-├─ assets/                 Logo and brand assets
-└─ tools/
-   └─ generate_icons.py    Reproducible icon generator (Pillow)
-```
-
-## Regenerating the icons
-
-The icons are produced from a single script so the brand stays consistent:
-
-```bash
-python tools/generate_icons.py
+└─ assets/                 Logo and brand assets
 ```
 
 ## Responsible use
@@ -116,6 +108,11 @@ does not attempt to bypass DRM.
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and open an issue or
 pull request. If you like the direction of the project, a star is a great way to show support.
+
+## Topics
+
+chrome-extension · video-downloader · audio-downloader · media-downloader · hls-downloader ·
+m3u8 · dash · ffmpeg · stream-downloader · manifest-v3 · javascript · open-source
 
 ## License
 

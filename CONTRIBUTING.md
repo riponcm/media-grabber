@@ -26,15 +26,6 @@ No build step is required. The extension runs directly from source.
   `popup.js` for the UI.
 - Prefer small, well-named functions and short comments that explain intent.
 
-## Icons
-
-Icons are generated from `tools/generate_icons.py` (requires Pillow). If you change the mark,
-update the script and regenerate all sizes so the set stays consistent:
-
-```bash
-python tools/generate_icons.py
-```
-
 ## Pull requests
 
 1. Create a feature branch.

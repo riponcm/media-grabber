@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Media Grabber",
+  "name": "Media Grabber - Video & Audio Downloader",
   "version": "1.0.0",
-  "description": "Detect audio and video sources on any page and download them, or get a ready-to-run FFmpeg command for streams.",
+  "description": "Video and audio downloader for the web. Detect and save media from any page, with HLS/DASH (m3u8) support via FFmpeg.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
