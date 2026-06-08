@@ -222,29 +222,44 @@ function setRecordingUI(active, startedAt) {
   }
 }
 
+// Locally cached so the click handler can act synchronously (a user gesture is
+// required by chrome.tabCapture.getMediaStreamId and must not be lost to an
+// async round-trip before the call).
+let isRecording = false;
+
 function refreshRecordingState() {
   chrome.runtime.sendMessage({ type: "recording-status" }, (state) => {
-    setRecordingUI(Boolean(state?.active), state?.startedAt || 0);
+    isRecording = Boolean(state?.active);
+    setRecordingUI(isRecording, state?.startedAt || 0);
   });
 }
 
 recordBtn.addEventListener("click", () => {
-  chrome.runtime.sendMessage({ type: "recording-status" }, (state) => {
-    if (state?.active) {
-      chrome.runtime.sendMessage({ type: "stop-recording" }, () => setRecordingUI(false));
+  if (isRecording) {
+    chrome.runtime.sendMessage({ type: "stop-recording" }, () => {
+      isRecording = false;
+      setRecordingUI(false);
+    });
+    return;
+  }
+  if (activeTabId == null) return;
+
+  // Call getMediaStreamId directly in the gesture — no async hop before this.
+  chrome.tabCapture.getMediaStreamId({ targetTabId: activeTabId }, (streamId) => {
+    if (chrome.runtime.lastError || !streamId) {
+      alert(
+        `Could not start capture: ${chrome.runtime.lastError?.message || "no stream"}\n\n` +
+          "Make sure this tab is the active tab and is playing audio."
+      );
       return;
     }
-    if (activeTabId == null) return;
-    chrome.tabCapture.getMediaStreamId({ targetTabId: activeTabId }, (streamId) => {
-      if (chrome.runtime.lastError || !streamId) {
-        alert(`Could not start capture: ${chrome.runtime.lastError?.message || "no stream"}`);
-        return;
+    chrome.runtime.sendMessage(
+      { type: "start-recording", streamId, tabId: activeTabId },
+      () => {
+        isRecording = true;
+        setRecordingUI(true, Date.now());
       }
-      chrome.runtime.sendMessage(
-        { type: "start-recording", streamId, tabId: activeTabId },
-        () => setRecordingUI(true, Date.now())
-      );
-    });
+    );
   });
 });
 
