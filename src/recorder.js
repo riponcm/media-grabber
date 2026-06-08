@@ -77,8 +77,32 @@ async function micPermissionState() {
   }
 }
 
-els.grantMic.addEventListener("click", () => {
-  chrome.tabs.create({ url: chrome.runtime.getURL("src/request-mic.html") });
+els.grantMic.addEventListener("click", async () => {
+  setStatus("Requesting microphone...");
+  try {
+    // Try inline first — on many setups the side-panel prompt works (no extra window).
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((t) => t.stop());
+    setStatus("Microphone enabled.");
+    updateMicRow();
+  } catch {
+    // Side-panel prompts are sometimes auto-dismissed; fall back to a small helper
+    // window that reliably shows the prompt and closes itself on grant.
+    chrome.windows.create({
+      url: chrome.runtime.getURL("src/request-mic.html"),
+      type: "popup",
+      width: 460,
+      height: 340,
+    });
+  }
+});
+
+// The helper window notifies us when permission is granted.
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg?.type === "mic-granted") {
+    setStatus("Microphone enabled.");
+    updateMicRow();
+  }
 });
 
 async function listMics() {

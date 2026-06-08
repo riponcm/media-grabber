@@ -10,15 +10,30 @@
 const stateEl = document.getElementById("state");
 const grantBtn = document.getElementById("grant");
 
+async function closeSelf() {
+  try {
+    const tab = await chrome.tabs.getCurrent();
+    if (tab?.id != null) {
+      await chrome.tabs.remove(tab.id);
+      return;
+    }
+  } catch {
+    /* fall through */
+  }
+  window.close();
+}
+
 async function request() {
   stateEl.textContent = "";
   stateEl.className = "state";
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach((t) => t.stop()); // we only needed the permission
-    stateEl.textContent = "Microphone access granted. You can close this tab and return to the recorder.";
+    stateEl.textContent = "Microphone access granted. Closing...";
     stateEl.classList.add("ok");
     grantBtn.disabled = true;
+    chrome.runtime.sendMessage({ type: "mic-granted" }); // tell the recorder panel
+    setTimeout(closeSelf, 700); // auto-close
   } catch (e) {
     stateEl.textContent = `Access not granted (${e.name}). If it was blocked, enable the microphone for this extension in the address-bar site settings, then try again.`;
     stateEl.classList.add("err");
