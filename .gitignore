@@ -21,3 +21,6 @@ dist/
 
 # Local tooling (not published)
 tools/generate_icons.py
+
+# Private planning notes
+FUTURE.md
