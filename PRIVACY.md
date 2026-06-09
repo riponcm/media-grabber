@@ -36,5 +36,6 @@ above, on the page you are actively using. They are not used for tracking or pro
 Any changes to this policy will be published in this file in the project repository.
 
 ## Contact
-Questions or issues: please open an issue at
-https://github.com/riponcm/media-grabber/issues
+For questions, privacy requests, or issues:
+- Email: **support@matily.org**
+- GitHub issues: https://github.com/riponcm/media-grabber/issues
