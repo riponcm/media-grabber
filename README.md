@@ -19,6 +19,8 @@ so you can **download video and audio in one click** — even when the site has 
 For adaptive **HLS and DASH streams** (`.m3u8`, `.mpd`), it generates a ready-to-run **FFmpeg**
 command to save them.
 
+_An open-source project by **[Matily](https://matily.org)** — free, non-profit software for everyone._
+
 > If this project saves you time, please consider giving it a star. It takes one click, costs you
 > nothing, and is the single best way to help other people discover it.
 
@@ -149,7 +151,7 @@ m3u8 · dash · ffmpeg · stream-downloader · manifest-v3 · javascript · open
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Released under the [MIT License](LICENSE). © Matily.
 
 <div align="center">
 

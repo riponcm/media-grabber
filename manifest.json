@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Media Grabber - Video & Audio Downloader",
   "version": "1.0.0",
+  "author": "Matily",
   "description": "Video and audio downloader for the web. Detect and save media from any page, with HLS/DASH (m3u8) support via FFmpeg.",
   "icons": {
     "16": "icons/icon16.png",

@@ -2,8 +2,8 @@
 
 _Last updated: 2026_
 
-Media Grabber is a Chrome extension that detects and downloads audio/video on the page you are
-viewing and lets you record tab or microphone audio to a file.
+Media Grabber is a free, open-source Chrome extension by **Matily** that detects and downloads
+audio/video on the page you are viewing and lets you record tab or microphone audio to a file.
 
 ## The short version
 **Media Grabber does not collect, store, transmit, or sell any personal data.** Everything runs
