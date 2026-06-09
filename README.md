@@ -22,6 +22,32 @@ command to save them.
 > If this project saves you time, please consider giving it a star. It takes one click, costs you
 > nothing, and is the single best way to help other people discover it.
 
+## Demo
+
+A quick run through detection, one-click download, and the built-in recorder:
+
+<div align="center">
+  <img src="assets/demo.gif" alt="Media Grabber in action — detect, download, and record" width="720" />
+</div>
+
+## Screenshots
+
+<div align="center">
+
+**Detect and download media from any page** — the toolbar popup lists every audio/video
+source it finds, with one-click download.
+
+<img src="assets/screenshot-detect.png" alt="Media Grabber popup detecting media on a page" width="820" />
+
+<br />
+
+**Record tab audio, microphone, or both** — a docked side panel with a live waveform,
+pause/resume, and WebM or WAV output.
+
+<img src="assets/screenshot-recorder.png" alt="Media Grabber recorder side panel" width="820" />
+
+</div>
+
 ## Features
 
 - **Network detection.** Watches response content types and catches media files
